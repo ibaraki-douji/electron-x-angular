@@ -1,5 +1,5 @@
 {
-  "name": "dataset-maker",
+  "name": "ibaraki-dataset-maker",
   "version": "0.0.1",
   "scripts": {
     "angular:ng": "ng",
