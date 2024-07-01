@@ -31,6 +31,15 @@ You might need to reload the Electron application after the Angular development 
 
 ## Building / Packaging
 
+Before building, make sure all the icons are presents and the `package.json` is correctly configured.
+
+Also check for the following fields in the `package.json` file:
+- `name`: No special characters, no spaces, no uppercase (replace your spaces with `-` and your uppercase with lowercase)
+- `version`: The version of your application (don't add any suffixes like `-dev` or `-beta`)
+- `build.productName`: The name of your application. This is the same as the `name` field but with spaces and uppercase.
+- `build.extraResources`: Path for custom resources (like icons, etc.), for now it's only taking the `.ico` files in the `public` folder.
+
+
 To build the application, run `npm run build`. This will build the Angular application and package it with Electron.
 
 ```bash
