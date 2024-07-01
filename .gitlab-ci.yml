@@ -95,7 +95,9 @@ upload:
 auto-release:
   image: registry.gitlab.com/gitlab-org/release-cli
   needs:
-    - job: upload
+    - job: windowsDist
+      artifacts: true
+    - job: linuxDist
       artifacts: true
   stage: Release
   rules:
