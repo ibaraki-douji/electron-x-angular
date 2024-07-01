@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "outDir": "./lib/",
+      "rootDir": "./app/",
+      "module": "commonjs",
+      "target": "ESNext",
+      "noImplicitAny": false,
+      "sourceMap": false,
+      "declaration": false
+    },
+    "include": [
+      "./app/**/*"
+    ],
+    "exclude": [
+      "src/**/*"
+    ]
+}

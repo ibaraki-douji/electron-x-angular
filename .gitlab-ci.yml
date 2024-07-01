@@ -1,0 +1,115 @@
+stages:
+  - Build
+  - Upload
+  - Release
+
+.before_build: &before_build
+    - rm -rf /usr/local/bin/node /usr/local/bin/npm /usr/local/bin/npx /usr/local/lib/node_modules /usr/local/include/node /usr/local/lib/node_modules /usr/local/share/doc/node /usr/local/share/systemtap /usr/local/share
+    - curl -L https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-x64.tar.gz | tar xz -C /usr/local --strip-components=1
+    - unlink /usr/local/CHANGELOG.md && unlink /usr/local/LICENSE && unlink /usr/local/README.md
+    - echo "unsafe-perm true" > .npmrc
+    - npm install --legacy-peer-deps
+
+linuxDist:
+  stage: Build
+  image: electronuserland/builder:wine-mono
+  before_script:
+    - *before_build
+  script:
+    - test "$CI_COMMIT_BRANCH" == "master" && echo "Creating Latest" || (node -e "const { writeFileSync } = require('fs'); const p = require('./package.json'); p.version = p.version + '-dev'; writeFileSync('package.json', JSON.stringify(p));" && echo "Creating Dev")
+    - export VERSION=$(node -e "console.log(require('./package.json').version)")
+    - echo "VERSION=$VERSION" >> variables.env
+    - export APPNAME=$(node -e "console.log(require('./package.json').build.productName)")
+    - echo "APPNAME=$APPNAME" >> variables.env
+    - echo "APPNAME_LOWER=$(echo $APPNAME | tr '[:upper:]' '[:lower:]')" >> variables.env
+    - npm run build:linux
+    - apt update && apt install rename -y
+    - cd dist && rename 's/ /-/g' * && cd ..
+  artifacts:
+    reports:
+      dotenv: variables.env
+    name: $CI_COMMIT_REF_SLUG
+    paths:
+      - $CI_PROJECT_DIR/dist/*.*
+    when: on_success
+  only:
+    - master
+    - dev
+
+
+windowsDist:
+  stage: Build
+  image: electronuserland/builder:wine-mono
+  before_script:
+    - *before_build
+  script:
+    - test "$CI_COMMIT_BRANCH" == "master" && echo "Creating Latest" || (node -e "const { writeFileSync } = require('fs'); const p = require('./package.json'); p.version = p.version + '-dev'; writeFileSync('package.json', JSON.stringify(p));" && echo "Creating Dev")
+    - export VERSION=$(node -e "console.log(require('./package.json').version)")
+    - echo "VERSION=$VERSION" >> variables.env
+    - export APPNAME=$(node -e "console.log(require('./package.json').build.productName)")
+    - export APPNAME=$(echo $APPNAME | tr ' ' '-')
+    - echo "APPNAME=$APPNAME" >> variables.env
+    - echo "APPNAME_LOWER=$(echo $APPNAME | tr '[:upper:]' '[:lower:]')" >> variables.env
+    - npm run build:win
+    - apt update && apt install rename -y
+    - cd dist && rename 's/ /-/g' * && cd ..
+  artifacts:
+    reports:
+      dotenv: variables.env
+    name: $CI_COMMIT_REF_SLUG
+    paths:
+      - $CI_PROJECT_DIR/dist/*.*
+    when: on_success
+  only:
+    - dev
+    - master
+
+
+variables:
+  WIN_BINARY: '${APPNAME}-portable-${VERSION}.exe'
+  WIN_INSTALLER: '${APPNAME}-Setup-${VERSION}.exe'
+  LINUX_BINARY: '${APPNAME}-${VERSION}.AppImage'
+  LINUX_INSTALLER: '${APPNAME_LOWER}_${VERSION}_amd64.deb'
+  PACKAGE_REGISTRY_URL: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${APPNAME}/${VERSION}'
+  PACKAGE_REGISTRY_URL_YML: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${APPNAME}'
+
+upload:
+  stage: Upload
+  needs:
+    - job: windowsDist
+      artifacts: true
+    - job: linuxDist
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
+      when: on_success
+  script:
+    - |
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -L --upload-file "./dist/${WIN_BINARY}" "${PACKAGE_REGISTRY_URL}/${WIN_BINARY}" && \
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -L --upload-file "./dist/${WIN_INSTALLER}" "${PACKAGE_REGISTRY_URL}/${WIN_INSTALLER}" && \
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -L --upload-file "./dist/${LINUX_BINARY}" "${PACKAGE_REGISTRY_URL}/${LINUX_BINARY}" && \
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" -L --upload-file "./dist/${LINUX_INSTALLER}" "${PACKAGE_REGISTRY_URL}/${LINUX_INSTALLER}" \
+
+auto-release:
+  image: registry.gitlab.com/gitlab-org/release-cli
+  needs:
+    - job: upload
+      artifacts: true
+  stage: Release
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: on_success
+  script:
+    - echo "Release $VERSION"
+    - |
+      release-cli --server-url https://git.ibaraki.app \
+      create --name "Release $VERSION" --tag-name v$VERSION \
+      --description 'Ibaraki Group' --ref $CI_COMMIT_SHA \
+      --assets-link "{\"name\":\"${APPNAME} Win64 Portable\",\"url\":\"${PACKAGE_REGISTRY_URL}/${WIN_BINARY}\"}" \
+      --assets-link "{\"name\":\"${APPNAME} Win64 Installer\",\"url\":\"${PACKAGE_REGISTRY_URL}/${WIN_INSTALLER}\"}" \
+      --assets-link "{\"name\":\"${APPNAME} Linux AppImage\",\"url\":\"${PACKAGE_REGISTRY_URL}/${LINUX_BINARY}\"}" \
+      --assets-link "{\"name\":\"${APPNAME} Linux DEB\",\"url\":\"${PACKAGE_REGISTRY_URL}/${LINUX_INSTALLER}\"}" \

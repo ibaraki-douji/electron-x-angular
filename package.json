@@ -1,38 +1,120 @@
 {
   "name": "dataset-maker",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "angular:ng": "ng",
+    "angular:start": "ng serve",
+    "angular:build": "ng build --base-href ./ --output-path ./dist && sed -i 's@<base href=\"/\">@<base href=\"./\">@g' dist/browser/index.html",
+    "angular:watch": "ng build --watch --configuration development",
+    "angular:test": "ng test",
+    "electron:tsc": "tsc -p ./tsconfig.electron.json",
+    "electron:start": "npm run electron:tsc && electron .",
+    "electron:build": "npm run electron:tsc && electron-builder --win --linux --x64",
+    "electron:build:linux": "npm run electron:tsc && electron-builder --linux",
+    "electron:build:win": "npm run electron:tsc && electron-builder --win",
+    "start": "NODE_ENV=development npm-run-all --parallel angular:start electron:start",
+    "start:tools": "NODE_ENV=development DEV_TOOLS=true npm-run-all --parallel angular:start electron:start",
+    "start:prod": "npm run angular:build && NODE_ENV=production npm run electron:start",
+    "start:prod:tools": "npm run angular:build && NODE_ENV=production DEV_TOOLS=true npm run electron:start",
+    "build": "npm run angular:build && npm run electron:build",
+    "build:linux": "npm run angular:build && npm run electron:build:linux",
+    "build:win": "npm run angular:build && npm run electron:build:win"
   },
+  "main": "lib/app.js",
   "private": true,
   "dependencies": {
-    "@angular/animations": "^18.0.0",
-    "@angular/common": "^18.0.0",
-    "@angular/compiler": "^18.0.0",
-    "@angular/core": "^18.0.0",
-    "@angular/forms": "^18.0.0",
-    "@angular/platform-browser": "^18.0.0",
-    "@angular/platform-browser-dynamic": "^18.0.0",
-    "@angular/router": "^18.0.0",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.14.3"
+    "@angular/animations": "^18.0.5",
+    "@angular/common": "^18.0.5",
+    "@angular/compiler": "^18.0.5",
+    "@angular/core": "^18.0.5",
+    "@angular/forms": "^18.0.5",
+    "@angular/platform-browser": "^18.0.5",
+    "@angular/platform-browser-dynamic": "^18.0.5",
+    "@angular/router": "^18.0.5",
+    "rxjs": "~7.8.1",
+    "tslib": "^2.6.3",
+    "zone.js": "~0.14.7"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.0.6",
     "@angular/cli": "^18.0.6",
-    "@angular/compiler-cli": "^18.0.0",
-    "@types/jasmine": "~5.1.0",
-    "jasmine-core": "~5.1.0",
-    "karma": "~6.4.0",
+    "@angular/compiler-cli": "^18.0.5",
+    "@types/jasmine": "~5.1.4",
+    "electron": "^31.1.0",
+    "electron-builder": "^24.13.3",
+    "jasmine-core": "~5.1.2",
+    "karma": "~6.4.3",
     "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
+    "karma-coverage": "~2.2.1",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.4.2"
-  }
+    "npm-run-all": "^4.1.5",
+    "typescript": "~5.4.5"
+  },
+  "bugs": {
+    "email": "ibaraki@ibaraki.app",
+    "url": "https://git.ibaraki.app/apps/ai/dataset/-/issues"
+  },
+  "build": {
+    "appId": "fr.ibaraki.ai.dataset",
+    "productName": "Ibaraki Dataset Maker",
+    "copyright": "Copyright (c) 2024 Ibaraki Douji",
+    "files": [
+      "dist/browser/**/*",
+      "node_modules/**/*",
+      "public/**/*",
+      "lib/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "public"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/icon.ico",
+      "uninstallerIcon": "public/icon.ico",
+      "installerHeaderIcon": "public/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Ibaraki Dataset Maker",
+      "differentialPackage": false
+    },
+    "portable": {
+      "artifactName": "${productName}-portable-${version}.${ext}"
+    },
+    "extraResources": [
+      {
+        "from": "public",
+        "to": "public",
+        "filter": [
+          "**/*.ico"
+        ]
+      }
+    ]
+  },
+  "author": {
+    "email": "ibaraki@ibaraki.app",
+    "name": "Ibaraki Douji",
+    "url": "https://ibaraki.app"
+  },
+  "homepage": "https://git.ibaraki.app/apps/ai/dataset",
+  "license": "ISC",
+  "description": "Ibaraki Dataset Maker"
 }
