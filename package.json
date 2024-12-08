@@ -1,6 +1,6 @@
 {
   "name": "ibaraki-example",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "angular:ng": "ng",
     "angular:start": "ng serve",
@@ -31,6 +31,7 @@
     "@angular/platform-browser": "^19.0.3",
     "@angular/platform-browser-dynamic": "^19.0.3",
     "@angular/router": "^19.0.3",
+    "ngx-electronyzer": "^18.2.0",
     "rxjs": "~7.8.1",
     "tslib": "^2.8.1",
     "zone.js": "~0.15.0"

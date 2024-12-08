@@ -1,12 +1,15 @@
 import { app, BrowserWindow } from "electron";
 import { join } from "path";
 import { format } from "url";
+import { ElectronService } from "./services/electron.service";
 
 app.on("window-all-closed", () => {
     app.quit();
 });
 
 app.on("ready", async () => {
+    initServices();
+
     var window = new BrowserWindow({
         width: 1100,
         height: 600,
@@ -44,3 +47,6 @@ app.on("ready", async () => {
     });
 });
 
+function initServices() {
+    new ElectronService();
+}

@@ -2,11 +2,13 @@
 
 This project is a template for creating Windows and Linux desktop applications using Angular 18 and Electron 31. (since i don't have any apple product, i can't test it on MacOS).
 
+It also integreate [Ngx Electronizer](https://github.com/bampakoa/ngx-electronify/tree/master/packages/core/projects/electron) to make the integration between Angular and Electron easier.
+
 ## Versions
 
-- Angular: 18 (tested from v17 to v18)
-- Electron: 31 (tested from v30 to v31)
-- NodeJS: 20.14.X (tested from v20.14 to v20.14)
+- Angular: 19 (tested from v17 to v19)
+- Electron: 33 (tested from v30 to v33)
+- NodeJS: 20.14 (tested only v20.14)
 
 
 ## Getting Started
