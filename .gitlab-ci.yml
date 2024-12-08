@@ -99,6 +99,7 @@ auto-release:
       artifacts: true
     - job: linuxDist
       artifacts: true
+    - job: upload
   stage: Release
   rules:
     - if: $CI_COMMIT_TAG
