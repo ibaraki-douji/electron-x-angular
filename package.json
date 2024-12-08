@@ -1,6 +1,6 @@
 {
-  "name": "ibaraki-dataset-maker",
-  "version": "0.0.1",
+  "name": "example",
+  "version": "0.0.2",
   "scripts": {
     "angular:ng": "ng",
     "angular:start": "ng serve",
@@ -56,8 +56,8 @@
     "url": "https://git.ibaraki.app/apps/ai/dataset/-/issues"
   },
   "build": {
-    "appId": "fr.ibaraki.ai.dataset",
-    "productName": "Ibaraki Dataset Maker",
+    "appId": "fr.ibaraki.example",
+    "productName": "Ibaraki Example",
     "copyright": "Copyright (c) 2024 Ibaraki Douji",
     "files": [
       "dist/browser/**/*",
@@ -93,7 +93,7 @@
       "installerHeaderIcon": "public/favicon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Ibaraki Dataset Maker",
+      "shortcutName": "Ibaraki Example",
       "differentialPackage": false
     },
     "portable": {
@@ -116,5 +116,5 @@
   },
   "homepage": "https://git.ibaraki.app/apps/ai/dataset",
   "license": "ISC",
-  "description": "Ibaraki Dataset Maker"
+  "description": "Ibaraki Example"
 }
