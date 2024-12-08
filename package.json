@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "ibaraki-example",
   "version": "0.0.2",
   "scripts": {
     "angular:ng": "ng",
